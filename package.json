@@ -1,0 +1,88 @@
+{
+  "name": "mean3-review-app",
+  "private": true,
+  "description": "A full-stack Shopify Application built with Remix, Prisma, and MongoDB for managing product reviews.",
+  "scripts": {
+    "build": "react-router build",
+    "dev": "shopify app dev",
+    "config:link": "shopify app config link",
+    "generate": "shopify app generate",
+    "deploy": "shopify app deploy",
+    "config:use": "shopify app config use",
+    "env": "shopify app env",
+    "start": "react-router-serve ./build/server/index.js",
+    "docker-start": "pnpm run setup && pnpm run start",
+    "setup": "pnpm prisma generate && pnpm prisma db push",
+    "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "shopify": "shopify",
+    "prisma": "prisma",
+    "graphql-codegen": "graphql-codegen",
+    "vite": "vite"
+  },
+  "type": "module",
+  "engines": {
+    "node": "^18.20 || ^20.10 || >=21.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.2.1",
+    "@react-router/fs-routes": "^7.13.0",
+    "@react-router/node": "^7.13.0",
+    "@react-router/serve": "^7.13.0",
+    "@shopify/app-bridge": "^3.7.11",
+    "@shopify/app-bridge-react": "^4.1.6",
+    "@shopify/polaris": "^13.9.5",
+    "@shopify/polaris-icons": "^9.3.1",
+    "@shopify/shopify-app-react-router": "^1.1.0",
+    "@shopify/shopify-app-session-storage-prisma": "^6.0.0",
+    "isbot": "^5.1.0",
+    "mongodb": "^7.0.0",
+    "nodemailer": "^8.0.1",
+    "prisma": "^6.2.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router": "^7.13.0",
+    "recharts": "^3.6.0",
+    "vite-tsconfig-paths": "^5.0.1"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.28.6",
+    "@babel/preset-react": "^7.28.5",
+    "@react-router/dev": "^7.13.0",
+    "@shopify/api-codegen-preset": "^1.1.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/eslint": "^9.6.1",
+    "@types/node": "^22.2.0",
+    "@types/react": "^18.2.31",
+    "@types/react-dom": "^18.2.14",
+    "babel-jest": "^30.2.0",
+    "eslint": "^8.42.0",
+    "eslint-config-prettier": "^10.0.1",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.2.2",
+    "vite": "^6.2.2"
+  },
+  "trustedDependencies": [
+    "@shopify/plugin-cloudflare"
+  ],
+  "resolutions": {
+    "@graphql-tools/url-loader": "8.0.16",
+    "@graphql-codegen/client-preset": "4.7.0",
+    "@graphql-codegen/typescript-operations": "4.5.0",
+    "minimatch": "9.0.5",
+    "vite": "^6.2.2"
+  },
+  "overrides": {
+    "@graphql-tools/url-loader": "8.0.16",
+    "@graphql-codegen/client-preset": "4.7.0",
+    "@graphql-codegen/typescript-operations": "4.5.0",
+    "minimatch": "9.0.5",
+    "vite": "^6.2.2"
+  },
+  "author": "MEAN 3"
+}

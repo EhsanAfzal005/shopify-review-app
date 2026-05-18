@@ -1,0 +1,263 @@
+<div id="mean3-floating-reviews-widget" class="mean3-floating-widget" style="
+  display: flex;
+  position: fixed;
+  align-items: center;
+  gap: 8px;
+  background-color: {{ block.settings.bg_color }};
+  color: {{ block.settings.text_color }};
+  padding: 12px 16px;
+  border-radius: 50px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  z-index: 999999;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+  {% if block.settings.position == 'bottom_left' %}
+    bottom: 24px;
+    left: 24px;
+  {% elsif block.settings.position == 'bottom_right' %}
+    bottom: 24px;
+    right: 24px;
+  {% elsif block.settings.position == 'middle_left' %}
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%) rotate(-90deg);
+    transform-origin: bottom left;
+    border-radius: 8px 8px 0 0;
+  {% elsif block.settings.position == 'middle_right' %}
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%) rotate(90deg);
+    transform-origin: bottom right;
+    border-radius: 8px 8px 0 0;
+  {% endif %}
+">
+  <!-- Interactive ★ icon -->
+  <svg style="width: 18px; height: 18px; fill: {{ block.settings.star_color }};" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+    <path d="M10.866 1.15a.998.998 0 0 0-1.732 0l-1.928 3.32-3.834.52a.997.997 0 0 0-.555 1.706l2.793 2.688-.678 3.805a.996.996 0 0 0 1.455 1.055L9.999 12.33l3.612 1.914a.998.998 0 0 0 1.456-1.055l-.678-3.805 2.793-2.688a.997.997 0 0 0-.554-1.706l-3.835-.52-1.927-3.32Z"></path>
+  </svg>
+  
+  <span class="mean3-fw-text">{{ block.settings.widget_text }}</span>
+
+  {% if block.settings.show_rating %}
+    <span id="mean3-fw-rating-badge" class="mean3-fw-rating" style="opacity: 0.9; margin-left: 4px; font-weight: normal;">-.-</span>
+  {% endif %}
+</div>
+
+<!-- Modal Dialog matching widget colors -->
+<div id="mean3-floating-modal" class="mean3-floating-modal" style="display: none;">
+  <div class="mean3-floating-modal-backdrop" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999999;"></div>
+  
+  <div class="mean3-floating-modal-content" style="
+    position: fixed; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    background: #ffffff; 
+    border-radius: 12px; 
+    width: 90%; 
+    max-width: 450px; 
+    max-height: 80vh; 
+    overflow-y: auto; 
+    z-index: 1000000;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  ">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; background: white; z-index: 10;">
+      <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #111827;">Store Reviews</h3>
+      <button id="mean3-floating-close" style="background: none; border: none; font-size: 24px; color: #6b7280; cursor: pointer; padding: 0;">&times;</button>
+    </div>
+    
+    <div style="padding: 24px;">
+      <!-- Dynamic Reviews Header -->
+      <div id="mean3-floating-header-stats" style="text-align: center; margin-bottom: 24px; display: none;">
+        <div id="mean3-floating-avg-num" style="font-size: 32px; font-weight: 700; color: #111827;">0.0</div>
+        <div id="mean3-floating-avg-stars" style="color: {{ block.settings.star_color }}; font-size: 20px; letter-spacing: 2px;"></div>
+        <div id="mean3-floating-total-count" style="color: #6b7280; font-size: 14px; margin-top: 4px;">Based on 0 reviews</div>
+      </div>
+
+      <!-- Reviews Container -->
+      <div id="mean3-floating-reviews-list" style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="text-align: center; padding: 20px; color: #6b7280;">Loading reviews...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .mean3-floating-widget:hover {
+    transform: translateY(-2px);
+    {% if block.settings.position contains 'middle' %}
+      transform: translateY(-50%) rotate({% if block.settings.position == 'middle_left' %}-90deg{% else %}90deg{% endif %}) scale(1.02) !important;
+    {% endif %}
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var widget = document.getElementById('mean3-floating-reviews-widget');
+    var modal = document.getElementById('mean3-floating-modal');
+    var closeBtn = document.getElementById('mean3-floating-close');
+    var backdrop = document.querySelector('.mean3-floating-modal-backdrop');
+    var reviewsList = document.getElementById('mean3-floating-reviews-list');
+    var hasFetched = false;
+
+    // Helper to generate stars
+    function getStarsHtml(rating) {
+        var stars = "";
+        for (var i = 1; i <= 5; i++) {
+            stars += (i <= rating) ? "★" : "☆";
+        }
+        return stars;
+    }
+
+    // Format date roughly
+    function timeAgo(dateString) {
+        if (!dateString) return '';
+        var date = new Date(dateString);
+        var seconds = Math.floor((new Date() - date) / 1000);
+        var interval = seconds / 86400;
+        if (interval > 1) {
+            return Math.floor(interval) + " days ago";
+        }
+        return "Today";
+    }
+
+    function fetchStoreReviews() {
+        if (hasFetched) return;
+        hasFetched = true;
+
+        // If the proxy is mapped to /api/public/reviews, then we just call /apps/reviews
+        fetch('/apps/reviews?productId=STORE&type=ALL&limit=10')
+            .then(res => res.json())
+            .then(data => {
+                const stats = data.stats;
+                const reviews = data.reviews;
+
+                // Update floating badge rating
+                var badgeRating = document.getElementById('mean3-fw-rating-badge');
+                if (badgeRating && stats) {
+                    badgeRating.innerText = stats.averageRating;
+                }
+
+                if (!reviews || reviews.length === 0) {
+                    reviewsList.innerHTML = '<div style="text-align:center; padding: 20px; color:#6b7280;">No reviews yet.</div>';
+                    return;
+                }
+
+                // Update Modal Header Stats
+                if (stats) {
+                    document.getElementById('mean3-floating-header-stats').style.display = 'block';
+                    document.getElementById('mean3-floating-avg-num').innerText = stats.averageRating;
+                    document.getElementById('mean3-floating-avg-stars').innerText = getStarsHtml(Math.round(stats.averageRating));
+                    document.getElementById('mean3-floating-total-count').innerText = "Based on " + stats.totalReviews + " reviews";
+                }
+
+                // Render Review List
+                var html = "";
+                reviews.forEach(function(review) {
+                    var initial = review.customerName ? review.customerName.charAt(0).toUpperCase() : 'A';
+                    var name = review.customerName || 'Anonymous';
+                    
+                    html += `
+                        <div style="padding: 16px; background: #f9fafb; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 28px; height: 28px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">${initial}</div>
+                                    <strong style="font-size: 14px; color: #111827;">${name}</strong>
+                                    <span style="background: #111827; color: white; padding: 2px 6px; border-radius: 12px; font-size: 10px; font-weight: 600;">✔ Verified</span>
+                                </div>
+                                <span style="color: #9ca3af; font-size: 12px;">${timeAgo(review.createdAt)}</span>
+                            </div>
+                            <div style="color: {{ block.settings.star_color }}; margin-bottom: 8px; font-size: 14px; letter-spacing: 2px;">${getStarsHtml(review.rating)}</div>
+                            <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.5;">${review.comment}</p>
+                        </div>
+                    `;
+                });
+                reviewsList.innerHTML = html;
+            })
+            .catch(err => {
+                console.error('Error fetching global store reviews', err);
+                reviewsList.innerHTML = '<div style="text-align:center; padding: 20px; color:#ef4444;">Failed to load reviews.</div>';
+                hasFetched = false;
+            });
+    }
+
+    // Fetch immediately on load to get the rating number for the badge
+    {% if block.settings.show_rating %}
+      fetchStoreReviews();
+    {% endif %}
+
+    if (widget && modal) {
+      widget.addEventListener('click', function() {
+        // Fetch if it hasn't already been fetched (if the badge was hidden)
+        fetchStoreReviews();
+        
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // prevent bg scrolling
+      });
+
+      function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (backdrop) backdrop.addEventListener('click', closeModal);
+    }
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Floating Store Reviews",
+  "target": "body",
+  "settings": [
+    {
+      "type": "select",
+      "id": "position",
+      "label": "Widget Position",
+      "options": [
+        { "value": "bottom_left", "label": "Bottom Left" },
+        { "value": "bottom_right", "label": "Bottom Right" },
+        { "value": "middle_left", "label": "Middle Left (Vertical)" },
+        { "value": "middle_right", "label": "Middle Right (Vertical)" }
+      ],
+      "default": "bottom_left"
+    },
+    {
+      "type": "text",
+      "id": "widget_text",
+      "label": "Widget Text",
+      "default": "Store Reviews"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show Rating Number",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#111827"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star Color",
+      "default": "#fbbf24"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,189 @@
+<div class="mean3-reviews-wrapper">
+<div id="mean3-reviews-container" 
+  data-product-id="{{ product.id }}" 
+  data-shop-domain="{{ shop.permanent_domain }}"
+  data-product-title="{{ product.title | escape }}"
+  data-product-image="{{ product.featured_image | img_url: 'medium' }}">
+  
+  <div class="mean3-header-container">
+    <h2>Customer Reviews</h2>
+    <div class="mean3-header-stats" id="mean3-header-stats" style="display: none;">
+      <div class="mean3-header-stars"></div>
+      <span class="mean3-header-rating-text">0.0</span>
+      <span class="mean3-header-count-text">(<span>0</span> reviews)</span>
+    </div>
+  </div>
+  
+  <!-- Summary Bar (populated by JS) -->
+  <div id="mean3-summary-bar" class="mean3-summary-bar" style="display: none;">
+    <div class="mean3-summary-left">
+      <div class="mean3-distribution"></div>
+    </div>
+    
+    <div class="mean3-summary-center">
+      <!-- optional grid for thumbnail images in summary -->
+      <div class="mean3-summary-images" id="mean3-summary-images"></div>
+    </div>
+
+    <div class="mean3-summary-right">
+      <button class="mean3-primary-btn" id="mean3-write-review-toggle">
+        <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false" aria-hidden="true" style="width: 16px; height: 16px; margin-right: 6px; fill: currentColor;"><path fill-rule="evenodd" d="M10 2c-4.418 0-8 3.582-8 8.002 0 1.545.438 3.05 1.266 4.356l-1.127 3.382a.75.75 0 0 0 .949.949l3.382-1.127c1.306.828 2.81 1.266 4.356 1.266 4.418 0 8-3.582 8-8.002s-3.582-8.002-8-8.002ZM8.5 10.002a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm6 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"></path></svg>
+        Ask a question
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters & Sorting Bar -->
+  <div class="mean3-filters-bar">
+    <div class="mean3-tabs" id="mean3-tabs-container">
+      <button class="mean3-tab active" data-type="PRODUCT">Product reviews (<span id="count-PRODUCT">0</span>)</button>
+      <button class="mean3-tab" data-type="STORE">Store reviews (<span id="count-STORE">0</span>)</button>
+      <button class="mean3-tab" data-type="QUESTION">Questions (<span id="count-QUESTION">0</span>)</button>
+    </div>
+    <div class="mean3-actions">
+      <div class="mean3-search-box" style="display: flex; align-items: center; border: 1px solid #d1d5db; border-radius: 6px; padding: 0 8px; background: white;">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="#9ca3af" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="mean3-search-input" placeholder="Search..." style="border: none; outline: none; box-shadow: none; padding: 8px; font-size: 13px; width: 120px;">
+      </div>
+      <select class="mean3-sort-select" id="mean3-sort-select">
+        <option value="Newest">Newest</option>
+        <option value="Pictures first">Pictures first</option>
+        <option value="Highest rating">Highest rating</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Always-visible Write a Review button -->
+  <div style="text-align: center; margin-bottom: 24px; padding-top: 10px;">
+    <button class="mean3-primary-btn" id="mean3-write-review-btn" style="background: var(--mean3-button-bg, #D32F2F); color: var(--mean3-button-text, #fff); padding: 12px 24px; font-size: 15px;">
+      <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false" aria-hidden="true" style="width: 18px; height: 18px; margin-right: 8px; fill: currentColor;"><path d="m11.139 7.797 1.063 1.063-6.522 6.522a2.25 2.25 0 0 1-.95.57l-1.996.602a.25.25 0 0 1-.314-.314l.602-1.996a2.25 2.25 0 0 1 .57-.95l6.547-6.547v1.05Zm1.841-.78 1.442-1.44a1.75 1.75 0 0 0-2.474-2.475l-1.442 1.441 2.474 2.474Z"></path></svg>
+      Add a review
+    </button>
+  </div>
+
+  <div id="mean3-reviews-list" class="mean3-masonry-grid">
+    <p>Loading reviews...</p>
+  </div>
+  
+  <div id="mean3-review-form-container" style="display: none; margin-bottom: 30px;">
+    <h3>Write a Review</h3>
+    <form id="mean3-review-form">
+      <input type="hidden" name="productId" value="{{ product.id }}">
+      <input type="hidden" name="rating" id="rating-value" value="5">
+      
+      <!-- Interactive Star Picker -->
+      <div class="form-group">
+        <label>Rating</label>
+        <div class="mean3-star-picker" id="star-picker">
+          <span class="star" data-rating="1">★</span>
+          <span class="star" data-rating="2">★</span>
+          <span class="star" data-rating="3">★</span>
+          <span class="star" data-rating="4">★</span>
+          <span class="star" data-rating="5">★</span>
+        </div>
+        <span class="mean3-rating-text" id="rating-text">Excellent</span>
+      </div>
+
+      <div class="form-group">
+        <label for="reviewType">Review Type</label>
+        <select name="reviewType" id="reviewType" style="width: 100%; padding: 12px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; transition: border-color 0.2s, box-shadow 0.2s; background: #f9fafb;">
+          <option value="PRODUCT">Product Review</option>
+          <option value="STORE">Store Review</option>
+          <option value="QUESTION">Question</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="customerName">Name</label>
+        <input type="text" name="customerName" id="customerName" required placeholder="Your Name">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" name="email" id="email" required placeholder="your@email.com">
+      </div>
+      
+      <div class="form-group">
+        <label for="comment">Review</label>
+        <textarea name="comment" id="comment" required placeholder="Share your experience"></textarea>
+      </div>
+
+      <!-- Photo Upload -->
+      <div class="form-group">
+        <label for="photos">Add Photos (optional)</label>
+        <div class="mean3-photo-upload">
+          <input type="file" id="photos" accept="image/*" multiple style="display: none;">
+          <button type="button" class="mean3-upload-btn" id="photo-btn">📷 Add Photos</button>
+          <span class="mean3-photo-hint">Up to 5 photos, max 2MB each</span>
+        </div>
+        <div class="mean3-photo-preview" id="photo-preview"></div>
+      </div>
+      
+      <button type="submit" id="mean3-submit-btn" disabled>Submit Review</button>
+    </form>
+    <div id="mean3-form-message"></div>
+  </div>
+</div>
+</div>
+
+<!-- Photo Lightbox Modal (Revamped format) -->
+<div id="mean3-lightbox" class="mean3-lightbox" style="display: none;">
+  <span class="mean3-lightbox-close">&times;</span>
+  <div class="mean3-lightbox-content">
+      <!-- Injected by JS -->
+  </div>
+</div>
+
+<script src="{{ 'reviews.js' | asset_url }}" defer></script>
+<link rel="stylesheet" href="{{ 'reviews.css' | asset_url }}">
+
+<style>
+  #mean3-reviews-container {
+    --mean3-star-color: {{ block.settings.star_color }};
+    --mean3-button-bg: {{ block.settings.button_bg }};
+    --mean3-button-text: {{ block.settings.button_text }};
+    --mean3-text-color: {{ block.settings.text_color }};
+    --mean3-primary-color: {{ block.settings.primary_color }};
+    max-width: none;
+    width: 100%;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Customer Reviews",
+  "target": "section",
+  "settings": [
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star Rating Color",
+      "default": "#ffce00"
+    },
+    {
+      "type": "color",
+      "id": "button_bg",
+      "label": "Button Background Color",
+      "default": "#D32F2F"
+    },
+    {
+      "type": "color",
+      "id": "button_text",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#333333"
+    },
+     {
+      "type": "color",
+      "id": "primary_color",
+      "label": "Primary/Accent Color",
+      "default": "#D32F2F"
+    }
+  ]
+}
+{% endschema %}

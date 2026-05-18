@@ -1,0 +1,43 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "f6d868df214f73c2473afa75d43dabbc"
+name = "mean3-review-app"
+application_url = "https://initiated-executives-penetration-counseling.trycloudflare.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2026-04"
+
+  [webhooks.privacy_compliance]
+  customer_deletion_url = "/webhooks/customers/redact"
+  customer_data_request_url = "/webhooks/customers/data_request"
+  shop_deletion_url = "/webhooks/shop/redact"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "products/delete" ]
+  uri = "/webhooks/products/delete"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products"
+
+[auth]
+redirect_urls = [
+  "https://initiated-executives-penetration-counseling.trycloudflare.com/auth/callback"
+]
+
+[app_proxy]
+url = "https://initiated-executives-penetration-counseling.trycloudflare.com/api/public/reviews"
+subpath = "reviews"
+prefix = "apps"
